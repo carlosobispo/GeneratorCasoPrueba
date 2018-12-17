@@ -41,7 +41,21 @@
 		<artifactId>commons-collections4</artifactId>
 		<version>4.1</version>
 	</dependency>
-  
+
+	<dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+         <version>1.6.1</version>
+     </dependency>
+	
+	<!-- https://mvnrepository.com/artifact/uk.org.simonsite/log4j-rolling-appender -->
+	<dependency>
+	    <groupId>uk.org.simonsite</groupId>
+	    <artifactId>log4j-rolling-appender</artifactId>
+	    <version>20131024-2017</version>
+	</dependency>
+
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -50,4 +64,45 @@
     </dependency>
     
   </dependencies>
+	
+  <build>
+  	<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>copy-dependencies</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>copy-dependencies</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>
+								${project.build.directory}/libs
+							</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<classpathPrefix>libs/</classpathPrefix>
+							<mainClass>
+								com.generador.prueba.principal.AppPrincipal
+							</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+			</plugin>
+  	</plugins>
+  </build>	  
+
+
 </project>
