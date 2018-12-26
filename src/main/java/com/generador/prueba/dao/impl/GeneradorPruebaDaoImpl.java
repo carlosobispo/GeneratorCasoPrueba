@@ -7,8 +7,6 @@ import java.util.List;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +14,12 @@ import com.generador.prueba.bean.ParameterBean;
 import com.generador.prueba.bean.ProcesoBean;
 import com.generador.prueba.bean.ValidateBean;
 import com.generador.prueba.bean.ValidateDetailBean;
+import com.generador.prueba.business.IGenerateIntegrationTest;
+import com.generador.prueba.business.impl.GenerateIntegrationTest;
 import com.generador.prueba.dao.IGeneradorPruebaDao;
 import com.generador.prueba.util.ExcelUtil;
+import com.generador.prueba.util.FileUtil;
+import com.generador.prueba.util.bundle.ResourceBundleUtil;
 
 public class GeneradorPruebaDaoImpl implements IGeneradorPruebaDao{
 	
@@ -31,8 +33,6 @@ public class GeneradorPruebaDaoImpl implements IGeneradorPruebaDao{
 			procesoBean = new ProcesoBean();
 			procesoBean.setValidateBean( getValidateBean(excelUtil) );
 			procesoBean.setValidateDetailBeans( getValidateDetailBean(excelUtil) );
-
-			System.out.println( procesoBean.getValidateDetailBeans() );
 		} catch (Exception e) {
 			LOG.error("Error al procesar archivo , ", e);
 			return null;
@@ -43,7 +43,7 @@ public class GeneradorPruebaDaoImpl implements IGeneradorPruebaDao{
 	private ValidateBean getValidateBean(ExcelUtil excelUtil){
 		ValidateBean validateBean = new ValidateBean();
 		validateBean.setTipo( excelUtil.getValueCell("C3") );
-		validateBean.setMetodo( excelUtil.getValueCell("C4"));
+		validateBean.setMetodo( excelUtil.getValueCell("C4").toLowerCase());
 		validateBean.setParameters( getParameters(excelUtil) );
 		return validateBean;
 	}
@@ -92,8 +92,7 @@ public class GeneradorPruebaDaoImpl implements IGeneradorPruebaDao{
 		boolean inicia = false;
 		boolean iniciaProceso = false;
 		while (rowIterator.hasNext()) {
-			
-			System.out.println("FILA ===========================");
+
 			validateDetailBean = new ValidateDetailBean();
 			
 			Row filaValidacion = rowIterator.next();
@@ -102,9 +101,7 @@ public class GeneradorPruebaDaoImpl implements IGeneradorPruebaDao{
 			while (cellIterator.hasNext()) {
 				i++;
 				Cell celdaFila = cellIterator.next();
-				
-				System.out.println("cel: " + celdaFila.getStringCellValue());
-				
+
 				if( "campo_backend".equals(celdaFila.getStringCellValue()) ){
 					iniciaProceso = true;
 					break;
@@ -125,4 +122,18 @@ public class GeneradorPruebaDaoImpl implements IGeneradorPruebaDao{
 		}
 		return validateDetailBeans;
 	}
+
+	public void generateIntegrationTest(ProcesoBean procesoBean) {
+		LOG.info(".. invoke GeneradorPruebaDaoImpl.generateIntegrationTest... ");
+		IGenerateIntegrationTest generateIntegrationTest = new GenerateIntegrationTest();
+		StringBuilder builder = generateIntegrationTest.generateIntegrationTest(procesoBean);
+		
+		String path_file_result = ResourceBundleUtil.getResourceValue("path_file_integration_result");
+		
+		FileUtil.getInstance().generateFileResult(path_file_result, builder);
+		
+	}
+	
+	
+	
 }

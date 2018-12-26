@@ -26,6 +26,7 @@ public class GeneradorPruebaExcel implements IGeneradorPrueba{
 			FileInputStream fileInputStream = new FileInputStream(path_file); 
 			IGeneradorPruebaDao generadorPruebaDao= new GeneradorPruebaDaoImpl();
 			ProcesoBean procesoBean= generadorPruebaDao.getProcesoBean(fileInputStream);
+			generadorPruebaDao.generateIntegrationTest(procesoBean);
 			
 		} catch (FileNotFoundException e1) {
 			LOG.error("No se encontro archivo, " ,e1);
